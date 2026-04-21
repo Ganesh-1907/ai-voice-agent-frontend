@@ -180,7 +180,7 @@ export function PublicCallSimulatorPanel() {
 
         const maxWaitNoSpeechMs = 4500;
         const maxTurnMs = 14000;
-        const silenceAfterSpeechMs = 900;
+        const silenceAfterSpeechMs = 2000;
 
         if (!speechDetected && now - startedAt > maxWaitNoSpeechMs) {
           clearInterval(interval);

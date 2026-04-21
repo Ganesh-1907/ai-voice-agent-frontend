@@ -175,7 +175,7 @@ export function TestCallPanel({ business, onCallCompleted }: Props) {
 
         const maxWaitNoSpeechMs = 4500;
         const maxTurnMs = 14000;
-        const silenceAfterSpeechMs = 900;
+        const silenceAfterSpeechMs = 3000;
 
         if (!speechDetected && now - startedAt > maxWaitNoSpeechMs) {
           clearInterval(interval);
