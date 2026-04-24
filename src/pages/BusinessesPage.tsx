@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { Plus, Pause, Play, Trash2 } from 'lucide-react'
+import { ExternalLink, MapPin, Pause, Play, Plus, Trash2 } from 'lucide-react'
 import { Business } from '@/types'
 import { useDbStore } from '@/data/db'
 import { Pagination } from '@/components/Pagination'
@@ -24,13 +24,14 @@ export function BusinessesPage() {
     password: '',
     forwardingNumber: '',
     address: '',
+    googleMapLink: '',
     plan: 'basic',
   })
 
   const handleAddBusiness = (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (!formData.name || !formData.ownerName || !formData.email) {
+    if (!formData.name || !formData.ownerName || !formData.email || !formData.phone) {
       alert('Please fill all required fields')
       return
     }
@@ -45,6 +46,7 @@ export function BusinessesPage() {
       status: 'active',
       forwardingNumber: formData.forwardingNumber,
       address: formData.address,
+      googleMapLink: formData.googleMapLink,
       createdAt: new Date().toISOString().split('T')[0],
     }
 
@@ -58,6 +60,7 @@ export function BusinessesPage() {
       password: '',
       forwardingNumber: '',
       address: '',
+      googleMapLink: '',
       plan: 'basic',
     })
   }
@@ -128,7 +131,10 @@ export function BusinessesPage() {
                   Owner
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-                  Contact
+                  Business Number
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                  Location
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
                   Plan
@@ -144,7 +150,7 @@ export function BusinessesPage() {
             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
               {paginatedBusinesses.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
+                  <td colSpan={7} className="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
                     No businesses found
                   </td>
                 </tr>
@@ -165,6 +171,24 @@ export function BusinessesPage() {
                     </td>
                     <td className="px-6 py-4 text-gray-700 dark:text-gray-300 text-sm">
                       {business.contact}
+                    </td>
+                    <td className="px-6 py-4 text-gray-700 dark:text-gray-300 text-sm max-w-xs">
+                      <div className="flex items-start gap-2">
+                        <MapPin size={16} className="mt-0.5 shrink-0 text-gray-400" />
+                        <div className="min-w-0">
+                          <p className="truncate">{business.address || 'Not added'}</p>
+                          {business.googleMapLink && (
+                            <a
+                              href={business.googleMapLink}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="mt-1 inline-flex items-center gap-1 text-xs font-medium text-indigo-600 hover:text-indigo-700 dark:text-indigo-300 dark:hover:text-indigo-200"
+                            >
+                              Map <ExternalLink size={12} />
+                            </a>
+                          )}
+                        </div>
+                      </div>
                     </td>
                     <td className="px-6 py-4">
                       <span className="inline-block px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 capitalize">
@@ -278,7 +302,7 @@ export function BusinessesPage() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Phone
+                    Business Phone Number *
                   </label>
                   <input
                     type="tel"
@@ -303,7 +327,7 @@ export function BusinessesPage() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Forwarding Number
+                  Forwarded To Shared Virtual Number
                 </label>
                 <input
                   type="tel"
@@ -321,6 +345,19 @@ export function BusinessesPage() {
                   type="text"
                   value={formData.address}
                   onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-slate-700 rounded-lg dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Google Map Link
+                </label>
+                <input
+                  type="url"
+                  value={formData.googleMapLink}
+                  onChange={(e) => setFormData({ ...formData, googleMapLink: e.target.value })}
+                  placeholder="https://maps.google.com/..."
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-slate-700 rounded-lg dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>

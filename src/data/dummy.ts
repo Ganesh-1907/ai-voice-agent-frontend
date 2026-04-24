@@ -19,6 +19,7 @@ export const dummyBusinesses: Business[] = [
     status: 'active',
     forwardingNumber: '+1-555-0102',
     address: '123 Business Ave, NY 10001',
+    googleMapLink: 'https://maps.google.com/?q=123+Business+Ave+NY+10001',
     createdAt: '2024-01-15',
   },
   {
@@ -31,6 +32,7 @@ export const dummyBusinesses: Business[] = [
     status: 'active',
     forwardingNumber: '+1-555-0202',
     address: '456 Tech Boulevard, SF 94105',
+    googleMapLink: 'https://maps.google.com/?q=456+Tech+Boulevard+SF+94105',
     createdAt: '2024-02-20',
   },
   {
@@ -43,6 +45,7 @@ export const dummyBusinesses: Business[] = [
     status: 'paused',
     forwardingNumber: '+1-555-0302',
     address: '789 Retail St, LA 90001',
+    googleMapLink: 'https://maps.google.com/?q=789+Retail+St+LA+90001',
     createdAt: '2024-03-10',
   },
 ]

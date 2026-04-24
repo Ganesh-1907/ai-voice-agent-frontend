@@ -20,6 +20,7 @@ export interface Business {
   status: 'active' | 'paused' | 'inactive'
   forwardingNumber?: string
   address?: string
+  googleMapLink?: string
   createdAt: string
 }
 
