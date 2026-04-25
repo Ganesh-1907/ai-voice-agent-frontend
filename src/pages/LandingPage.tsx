@@ -67,8 +67,11 @@ export function LandingPage() {
             Get Started
             <ArrowRight size={20} />
           </button>
-          <button className="border-2 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white px-8 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors font-medium">
-            Watch Demo
+          <button
+            onClick={() => navigate('/call-simulator')}
+            className="border-2 border-indigo-600 dark:border-indigo-500 text-indigo-600 dark:text-indigo-400 px-8 py-3 rounded-lg hover:bg-indigo-50 dark:hover:bg-slate-800 transition-colors font-medium"
+          >
+            Try Call Simulator
           </button>
         </div>
 

@@ -11,6 +11,7 @@ import { CallLeadsPage } from '@/pages/CallLeadsPage'
 import { OrdersPage } from '@/pages/OrdersPage'
 import { CallbackRequestsPage } from '@/pages/CallbackRequestsPage'
 import { ProfilePage } from '@/pages/ProfilePage'
+import { CallSimulatorPage } from '@/pages/CallSimulatorPage'
 import { MainLayout } from '@/components/layout/MainLayout'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -43,6 +44,7 @@ export default function App() {
           path="/login"
           element={isLoggedIn ? <Navigate to="/dashboard" replace /> : <LoginPage />}
         />
+        <Route path="/call-simulator" element={<CallSimulatorPage />} />
 
         {/* Protected Routes */}
         <Route
