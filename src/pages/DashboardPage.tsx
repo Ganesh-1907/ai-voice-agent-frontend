@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { useAuthStore } from '@/store/authStore'
 import { useDbStore } from '@/data/db'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
@@ -9,27 +10,39 @@ export function DashboardPage() {
   const products = useDbStore((state) => state.products)
   const callLeads = useDbStore((state) => state.callLeads)
   const orders = useDbStore((state) => state.orders)
+  const dashboardStats = useDbStore((state) => state.dashboardStats)
 
-  // Dummy chart data
-  const orderTrendsData = [
-    { name: 'Mon', orders: 4, calls: 24 },
-    { name: 'Tue', orders: 3, calls: 13 },
-    { name: 'Wed', orders: 2, calls: 29 },
-    { name: 'Thu', orders: 2, calls: 22 },
-    { name: 'Fri', orders: 6, calls: 39 },
-    { name: 'Sat', orders: 5, calls: 35 },
-    { name: 'Sun', orders: 7, calls: 42 },
-  ]
+  // Dynamic chart data
+  const orderTrendsData = useMemo(() => {
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+    const last7Days = [...Array(7)].map((_, i) => {
+      const d = new Date()
+      d.setDate(d.getDate() - (6 - i))
+      return {
+        name: days[d.getDay()],
+        date: d.toDateString(),
+        orders: 0,
+        calls: 0
+      }
+    })
 
-  const callStatusData = [
-    { name: 'Read', value: callLeads.filter(l => l.status === 'read').length || 45, color: '#10B981' },
-    { name: 'Unread', value: callLeads.filter(l => l.status === 'unread').length || 25, color: '#F59E0B' },
-  ]
+    last7Days.forEach(day => {
+      day.orders = orders.filter(o => new Date(o.createdAt).toDateString() === day.date).length
+      day.calls = callLeads.filter(l => new Date(l.createdAt).toDateString() === day.date).length
+    })
 
-  const totalBusinesses = businesses.length
-  const totalProducts = products.length
-  const totalCalls = callLeads.length
-  const totalOrders = orders.length
+    return last7Days
+  }, [orders, callLeads])
+
+  const callStatusData = useMemo(() => [
+    { name: 'Read', value: callLeads.filter(l => l.status === 'read').length, color: '#10B981' },
+    { name: 'Unread', value: callLeads.filter(l => l.status === 'unread').length, color: '#F59E0B' },
+  ], [callLeads])
+
+  const totalBusinesses = dashboardStats?.totalBusinesses ?? businesses.length
+  const totalProducts = dashboardStats?.totalProducts ?? products.length
+  const totalCalls = dashboardStats?.totalCalls ?? callLeads.length
+  const totalOrders = dashboardStats?.totalOrders ?? orders.length
 
   return (
     <div className="space-y-8">

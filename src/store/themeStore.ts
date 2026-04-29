@@ -8,7 +8,7 @@ interface ThemeState {
 
 const getPreferredTheme = () => {
   if (typeof window === 'undefined') {
-    return false
+    return true
   }
 
   const savedTheme = window.localStorage.getItem('theme')
@@ -16,7 +16,7 @@ const getPreferredTheme = () => {
     return savedTheme === 'dark'
   }
 
-  return window.matchMedia('(prefers-color-scheme: dark)').matches
+  return true
 }
 
 const applyThemeClass = (isDark: boolean) => {
@@ -28,7 +28,7 @@ const applyThemeClass = (isDark: boolean) => {
 }
 
 export const useThemeStore = create<ThemeState>((set, get) => ({
-  isDark: false,
+  isDark: true,
   initializeTheme: () => {
     const isDark = getPreferredTheme()
     applyThemeClass(isDark)

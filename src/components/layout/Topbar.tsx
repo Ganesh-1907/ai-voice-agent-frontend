@@ -3,12 +3,11 @@ import { useAuthStore } from '@/store/authStore'
 import { useThemeStore } from '@/store/themeStore'
 import { useNavigate } from 'react-router-dom'
 import { Moon, Sun, LogOut, User } from 'lucide-react'
+import { ThemeToggle } from '@/components/ThemeToggle'
 
 export function Topbar() {
   const user = useAuthStore((state) => state.user)
   const logout = useAuthStore((state) => state.logout)
-  const isDark = useThemeStore((state) => state.isDark)
-  const toggleTheme = useThemeStore((state) => state.toggleTheme)
   const navigate = useNavigate()
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false)
   const profileMenuRef = useRef<HTMLDivElement>(null)
@@ -55,13 +54,7 @@ export function Topbar() {
 
         <div className="flex items-center gap-3">
           {/* Theme Toggle */}
-          <button
-            onClick={toggleTheme}
-            aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-            className="p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white transition-colors"
-          >
-            {isDark ? <Sun size={20} /> : <Moon size={20} />}
-          </button>
+          <ThemeToggle />
 
           {/* Profile Menu */}
           <div className="relative" ref={profileMenuRef}>

@@ -1,16 +1,17 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/store/authStore'
-import { User } from '@/types'
+import { ThemeToggle } from '@/components/ThemeToggle'
 
 export function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
   const navigate = useNavigate()
-  const login = useAuthStore((state) => state.login)
+  const loginWithCredentials = useAuthStore((state) => state.loginWithCredentials)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
     // Dummy validation
@@ -21,36 +22,22 @@ export function LoginPage() {
 
     setError('')
 
-    // Role-based login
-    let dummyUser: User
-
-    if (email === 'user@automart.com') {
-      // Admin login — tied to a specific business
-      dummyUser = {
-        id: '2',
-        email,
-        name: 'Ahmed Khan',
-        role: 'admin',
-        businessId: '1',
-        phone: '+1-555-0101',
-      }
-    } else {
-      // Default to super-admin for any other email
-      dummyUser = {
-        id: '1',
-        email,
-        name: email.split('@')[0],
-        role: 'super-admin',
-        phone: '+1234567890',
-      }
+    setIsLoading(true)
+    try {
+      await loginWithCredentials(email, password)
+      navigate('/dashboard')
+    } catch {
+      setError('Invalid email or password')
+    } finally {
+      setIsLoading(false)
     }
-
-    login(dummyUser)
-    navigate('/dashboard')
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-600 to-indigo-800 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-600 to-indigo-800 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center relative">
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
       <div className="w-full max-w-md">
         {/* Card */}
         <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-8">
@@ -98,9 +85,10 @@ export function LoginPage() {
 
             <button
               type="submit"
+              disabled={isLoading}
               className="w-full bg-indigo-600 dark:bg-indigo-500 text-white py-2.5 rounded-lg font-medium hover:opacity-90 transition-opacity"
             >
-              Sign In
+              {isLoading ? 'Signing In...' : 'Sign In'}
             </button>
           </form>
 
@@ -112,13 +100,13 @@ export function LoginPage() {
             <div className="space-y-3">
               <div className="bg-gray-50 dark:bg-slate-700 p-3 rounded text-xs space-y-1">
                 <p><span className="font-semibold text-gray-900 dark:text-white">Super Admin:</span></p>
-                <p className="text-gray-600 dark:text-gray-300">Email: admin@example.com</p>
-                <p className="text-gray-600 dark:text-gray-300">Password: any password</p>
+                <p className="text-gray-600 dark:text-gray-300">Email: superadmin@gmail.com</p>
+                <p className="text-gray-600 dark:text-gray-300">Password: admin@123</p>
               </div>
               <div className="bg-gray-50 dark:bg-slate-700 p-3 rounded text-xs space-y-1">
                 <p><span className="font-semibold text-gray-900 dark:text-white">Business Admin:</span></p>
-                <p className="text-gray-600 dark:text-gray-300">Email: user@automart.com</p>
-                <p className="text-gray-600 dark:text-gray-300">Password: any password</p>
+                <p className="text-gray-600 dark:text-gray-300">Email: admin@automart.local</p>
+                <p className="text-gray-600 dark:text-gray-300">Password: admin@123</p>
               </div>
             </div>
           </div>

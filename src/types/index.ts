@@ -24,6 +24,17 @@ export interface Business {
   createdAt: string
 }
 
+export type ProductStatus = 'draft' | 'active' | 'available' | 'reserved' | 'sold' | 'inactive'
+
+export interface ProductImage {
+  id: string
+  productId: string
+  imageUrl: string
+  altText?: string
+  isPrimary?: boolean
+  sortOrder?: number
+}
+
 export interface Product {
   id: string
   name: string
@@ -31,6 +42,10 @@ export interface Product {
   businessId: string
   businessName?: string
   features: Feature[]
+  status?: ProductStatus
+  stockQuantity?: number
+  primaryImageUrl?: string | null
+  images?: ProductImage[]
   createdAt: string
 }
 

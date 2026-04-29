@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { Phone, BarChart3, Zap, Shield, ArrowRight, Check } from 'lucide-react'
+import { ThemeToggle } from '@/components/ThemeToggle'
 
 export function LandingPage() {
   const navigate = useNavigate()
@@ -39,12 +40,15 @@ export function LandingPage() {
       <nav className="sticky top-0 z-40 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <h1 className="text-2xl font-bold text-primary">CallAI</h1>
-          <button
-            onClick={() => navigate('/login')}
-            className="bg-indigo-600 dark:bg-indigo-500 text-white px-6 py-2 rounded-lg hover:opacity-90 transition-opacity"
-          >
-            Login
-          </button>
+          <div className="flex items-center gap-4">
+            <ThemeToggle />
+            <button
+              onClick={() => navigate('/login')}
+              className="bg-indigo-600 dark:bg-indigo-500 text-white px-6 py-2 rounded-lg hover:opacity-90 transition-opacity"
+            >
+              Login
+            </button>
+          </div>
         </div>
       </nav>
 

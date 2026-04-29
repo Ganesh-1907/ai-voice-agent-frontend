@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { useAuthStore } from '@/store/authStore'
 import { useThemeStore } from '@/store/themeStore'
+import { useDbStore } from '@/data/db'
 import { LandingPage } from '@/pages/LandingPage'
 import { LoginPage } from '@/pages/LoginPage'
 import { DashboardPage } from '@/pages/DashboardPage'
@@ -29,11 +30,35 @@ function AdminOnlyRoute({ children }: { children: React.ReactNode }) {
 
 export default function App() {
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn)
+  const refreshProfile = useAuthStore((state) => state.refreshProfile)
+  const hydrateAll = useDbStore((state) => state.hydrateAll)
   const initializeTheme = useThemeStore((state) => state.initializeTheme)
+  const expiresAt = useAuthStore((state) => state.expiresAt)
+  const logout = useAuthStore((state) => state.logout)
 
   useEffect(() => {
     initializeTheme()
   }, [initializeTheme])
+
+  // Auto-logout check (1hr)
+  useEffect(() => {
+    if (!isLoggedIn || !expiresAt) return
+
+    const checkExpiration = () => {
+      if (Date.now() > expiresAt) {
+        logout()
+      }
+    }
+
+    checkExpiration() // Initial check
+    const interval = setInterval(checkExpiration, 60000) // Check every minute
+    return () => clearInterval(interval)
+  }, [isLoggedIn, expiresAt, logout])
+
+  useEffect(() => {
+    if (!isLoggedIn) return
+    void refreshProfile().then(() => hydrateAll())
+  }, [isLoggedIn, refreshProfile, hydrateAll])
 
   return (
     <BrowserRouter>

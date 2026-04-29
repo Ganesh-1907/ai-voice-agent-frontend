@@ -1,9 +1,14 @@
 import { useState } from 'react'
 import { useAuthStore } from '@/store/authStore'
+import { useDbStore } from '@/data/db'
 import { Save } from 'lucide-react'
+import { apiRequest } from '@/lib/api'
 
 export function ProfilePage() {
   const user = useAuthStore((state) => state.user)
+  const businesses = useDbStore((state) => state.businesses)
+  const business = businesses.find((b) => b.id === user?.businessId)
+  const token = useAuthStore((state) => state.token)
   const updateUser = useAuthStore((state) => state.updateUser)
   const [formData, setFormData] = useState({
     name: user?.name || '',
@@ -25,12 +30,21 @@ export function ProfilePage() {
     setTimeout(() => setSuccessMessage(''), 3000)
   }
 
-  const handlePasswordChange = (e: React.FormEvent) => {
+  const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault()
     if (passwords.new !== passwords.confirm) {
       alert('Passwords do not match')
       return
     }
+    if (!token || !user?.email) {
+      alert('Not authenticated')
+      return
+    }
+    await apiRequest('/auth/dev/reset-password-by-email', {
+      method: 'POST',
+      token,
+      body: JSON.stringify({ email: user.email, newPassword: passwords.new }),
+    })
     alert('Password changed successfully!')
     setPasswords({ current: '', new: '', confirm: '' })
     setShowPasswordForm(false)
@@ -199,7 +213,7 @@ export function ProfilePage() {
       </div>
 
       {/* Plan Information */}
-      {user?.role === 'admin' && (
+      {user?.role === 'admin' && business && (
         <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
             Plan Information
@@ -209,21 +223,27 @@ export function ProfilePage() {
             <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-slate-900 rounded-lg">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Current Plan</p>
-                <p className="text-lg font-bold text-gray-900 dark:text-white">Professional</p>
+                <p className="text-lg font-bold text-gray-900 dark:text-white capitalize">{business.plan}</p>
               </div>
-              <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300">
-                Active
+              <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
+                business.status === 'active' 
+                ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300'
+                : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300'
+              }`}>
+                {business.status === 'active' ? 'Active' : 'Inactive'}
               </span>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="p-4 bg-gray-50 dark:bg-slate-900 rounded-lg">
                 <p className="text-sm text-gray-600 dark:text-gray-400">Calls Remaining</p>
-                <p className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">1,850</p>
+                <p className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">Unlimited</p>
               </div>
               <div className="p-4 bg-gray-50 dark:bg-slate-900 rounded-lg">
-                <p className="text-sm text-gray-600 dark:text-gray-400">Renews</p>
-                <p className="text-lg font-bold text-gray-900 dark:text-white">May 15, 2024</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Member Since</p>
+                <p className="text-lg font-bold text-gray-900 dark:text-white">
+                  {new Date(business.createdAt).toLocaleDateString()}
+                </p>
               </div>
             </div>
 
