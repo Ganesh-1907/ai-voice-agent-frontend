@@ -172,6 +172,7 @@ export const useDbStore = create<DbState>()(
             | 'professional'
             | 'enterprise',
           status: b.isActive ? 'active' : 'inactive',
+          serviceType: b.serviceType ?? undefined,
           forwardingNumber: b.virtualPhoneNumber ?? undefined,
           address: b.address ?? undefined,
           googleMapLink: b.googleMapLink ?? undefined,
@@ -282,6 +283,16 @@ export const useDbStore = create<DbState>()(
       addProduct: async (product) => {
         const { token } = useAuthStore.getState()
         if (!token) return
+        const business = get().businesses.find((b) => b.id === product.businessId)
+        const serviceTypeToCategory: Record<string, string> = {
+          car_dealer: 'car',
+          appliance_store: 'other',
+          electronics_store: 'other',
+          restaurant: 'restaurant',
+          fashion: 'fashion',
+          furniture: 'furniture',
+        }
+        const category = business?.serviceType ? (serviceTypeToCategory[business.serviceType] ?? 'other') : 'other'
         const created = await apiRequest<ProductApiResponse>(`/businesses/${product.businessId}/products`, {
           method: 'POST',
           token,
@@ -289,7 +300,7 @@ export const useDbStore = create<DbState>()(
             name: product.name,
             slug: buildProductSlug(product.name, String(Date.now())),
             price: product.price,
-            category: 'other',
+            category,
             status: product.status ?? 'available',
             stockQuantity: product.stockQuantity ?? 1,
             features: product.features,

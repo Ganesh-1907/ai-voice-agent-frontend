@@ -18,6 +18,7 @@ export interface Business {
   email: string
   plan: 'basic' | 'professional' | 'enterprise'
   status: 'active' | 'paused' | 'inactive'
+  serviceType?: string
   forwardingNumber?: string
   address?: string
   googleMapLink?: string

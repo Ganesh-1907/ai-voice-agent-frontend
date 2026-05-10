@@ -60,6 +60,15 @@ export default function App() {
     void refreshProfile().then(() => hydrateAll())
   }, [isLoggedIn, refreshProfile, hydrateAll])
 
+  // Poll for new calls, orders, and callbacks every 30 seconds
+  useEffect(() => {
+    if (!isLoggedIn) return
+    const interval = setInterval(() => {
+      void hydrateAll()
+    }, 30000)
+    return () => clearInterval(interval)
+  }, [isLoggedIn, hydrateAll])
+
   return (
     <BrowserRouter>
       <Routes>
