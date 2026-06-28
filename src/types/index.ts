@@ -99,3 +99,21 @@ export interface DashboardStats {
   callsRemaining?: number
   planInfo?: string
 }
+
+export type WhatsAppMessageStatus = 'queued' | 'sent' | 'delivered' | 'read' | 'failed'
+
+export interface WhatsAppMessage {
+  id: string
+  businessId: string
+  callId?: string
+  customerPhone: string
+  direction: 'inbound' | 'outbound'
+  messageType: 'text' | 'interactive' | 'image'
+  body?: string
+  buttonPayload?: Record<string, unknown>
+  providerMessageId?: string
+  status: WhatsAppMessageStatus
+  errorMessage?: string
+  createdAt: string
+  updatedAt: string
+}

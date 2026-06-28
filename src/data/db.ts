@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
-import { Business, Feature, Product, ProductImage, ProductStatus, CallLead, Order, CallbackRequest } from '@/types'
+import { Business, Feature, Product, ProductImage, ProductStatus, CallLead, Order, CallbackRequest, WhatsAppMessage } from '@/types'
 import { apiRequest } from '@/lib/api'
 import { useAuthStore } from '@/store/authStore'
 
@@ -113,6 +113,8 @@ interface DbState {
   callLeads: CallLead[]
   orders: Order[]
   callbackRequests: CallbackRequest[]
+  whatsappMessages: WhatsAppMessage[]
+  whatsappConfigured: boolean
   dashboardStats: DashboardStatsResponse | null
   hydrateAll: () => Promise<void>
 
@@ -135,6 +137,10 @@ interface DbState {
   // Callback Request operations
   updateCallbackRequest: (id: string, data: Partial<CallbackRequest>) => Promise<void>
 
+  // WhatsApp operations
+  hydrateWhatsAppMessages: () => Promise<void>
+  resendWhatsAppMessage: (businessId: string, messageId: string) => Promise<void>
+
   // Get business name by id
   getBusinessName: (id: string) => string
 }
@@ -147,6 +153,8 @@ export const useDbStore = create<DbState>()(
       callLeads: [],
       orders: [],
       callbackRequests: [],
+      whatsappMessages: [],
+      whatsappConfigured: true,
       dashboardStats: null,
       hydrateAll: async () => {
         const { token, user } = useAuthStore.getState()
@@ -224,6 +232,9 @@ export const useDbStore = create<DbState>()(
           })),
           dashboardStats: stats,
         })
+
+        // Hydrate WhatsApp messages in parallel (non-blocking)
+        get().hydrateWhatsAppMessages().catch(() => {})
       },
 
       // Business CRUD
@@ -400,6 +411,54 @@ export const useDbStore = create<DbState>()(
         const business = get().businesses.find((b) => b.id === id)
         return business?.name || 'Unknown Business'
       },
+
+      // WhatsApp operations
+      hydrateWhatsAppMessages: async () => {
+        const { token, user } = useAuthStore.getState()
+        if (!token || !user) return
+
+        const businesses = get().businesses
+        if (businesses.length === 0) return
+
+        const targetBusinesses = user.role === 'admin' && user.businessId
+          ? businesses.filter((b) => b.id === user.businessId)
+          : businesses
+
+        const allMessages: WhatsAppMessage[] = []
+        let isConfigured = true
+
+        for (const biz of targetBusinesses) {
+          try {
+            const msgs = await apiRequest<WhatsAppMessage[]>(
+              `/businesses/${biz.id}/messaging/whatsapp/history?limit=100`,
+              { token },
+            )
+            allMessages.push(...msgs)
+
+            // Since config is global right now, checking the first one is enough, but we can check any
+            const config = await apiRequest<{ configured: boolean }>(
+              `/businesses/${biz.id}/messaging/whatsapp/config`,
+              { token },
+            )
+            isConfigured = config.configured
+          } catch {
+            // Individual business fetch failure is non-critical
+          }
+        }
+
+        allMessages.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+        set({ whatsappMessages: allMessages, whatsappConfigured: isConfigured })
+      },
+
+      resendWhatsAppMessage: async (businessId, messageId) => {
+        const { token } = useAuthStore.getState()
+        if (!token) return
+        await apiRequest(`/businesses/${businessId}/messaging/whatsapp/${messageId}/resend`, {
+          method: 'POST',
+          token,
+        })
+        await get().hydrateWhatsAppMessages()
+      },
     }),
     {
       name: 'callai-db',
@@ -410,6 +469,7 @@ export const useDbStore = create<DbState>()(
         callLeads: state.callLeads,
         orders: state.orders,
         callbackRequests: state.callbackRequests,
+        whatsappMessages: state.whatsappMessages,
         dashboardStats: state.dashboardStats,
       }),
     }

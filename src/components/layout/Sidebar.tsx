@@ -9,6 +9,7 @@ import {
   Phone,
   ShoppingCart,
   PhoneCall,
+  MessageCircle,
   PanelLeftClose,
   PanelLeft,
 } from 'lucide-react'
@@ -51,6 +52,7 @@ export function Sidebar() {
         { icon: Phone, label: 'Call Leads', href: '/call-leads' },
         { icon: ShoppingCart, label: 'Orders', href: '/orders' },
         { icon: PhoneCall, label: 'Callback Requests', href: '/callbacks' },
+        { icon: MessageCircle, label: 'WhatsApp', href: '/whatsapp' },
       ]
     : [
         { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard' },
@@ -58,6 +60,7 @@ export function Sidebar() {
         { icon: Phone, label: 'Call Leads', href: '/call-leads' },
         { icon: ShoppingCart, label: 'Orders', href: '/orders' },
         { icon: PhoneCall, label: 'Callback Requests', href: '/callbacks' },
+        { icon: MessageCircle, label: 'WhatsApp', href: '/whatsapp' },
       ]
 
   return (

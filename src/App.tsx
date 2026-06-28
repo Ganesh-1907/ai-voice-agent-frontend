@@ -11,6 +11,7 @@ import { ProductsPage } from '@/pages/ProductsPage'
 import { CallLeadsPage } from '@/pages/CallLeadsPage'
 import { OrdersPage } from '@/pages/OrdersPage'
 import { CallbackRequestsPage } from '@/pages/CallbackRequestsPage'
+import { WhatsAppStatusPage } from '@/pages/WhatsAppStatusPage'
 import { ProfilePage } from '@/pages/ProfilePage'
 import { MainLayout } from '@/components/layout/MainLayout'
 
@@ -124,6 +125,14 @@ export default function App() {
           element={
             <ProtectedRoute>
               <CallbackRequestsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/whatsapp"
+          element={
+            <ProtectedRoute>
+              <WhatsAppStatusPage />
             </ProtectedRoute>
           }
         />
